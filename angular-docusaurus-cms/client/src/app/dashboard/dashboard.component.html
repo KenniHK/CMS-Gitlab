@@ -1,0 +1,317 @@
+<nav class="navbar sticky-top navbar-expand-lg navbar">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#" style="display: flex;">
+            <img class="navbarIcon" src="docusaurus-logo.png"/>
+            <h3 style="color: white;">Dashboard CMS Docusaurus</h3>
+        </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon">
+        </span>
+      </button>
+    </div>
+  </nav>
+
+<div class="flex-card-cotainer">
+  <div class="card border-secondary mb-3 card-token">
+    <h5 style="padding: 1em 2em 1em 1em;">Masukan token repository yang akan di edit</h5>
+    <div class="card-body text-secondary cardHeader">
+        <label>Github Token :</label>
+        <input type="password" class="form-control" [(ngModel)]="token" placeholder="Token Git" (ngModelChange)="token.set($event)" />   
+        <br><br>
+        <label>Username Github : </label>
+        <input type="text" class="form-control" [(ngModel)]="owner" placeholder="User Name" />
+        <br><br>
+        <button class="btn btn-outline-secondary" (click)="loadRepos()">Load Repositories</button>
+    </div>
+  </div>
+</div>
+
+<br><br><br>
+<div class="card card-repo-file" style="margin-bottom: 15%;">
+<div class="cardHeader">
+<div style="justify-items: center;" *ngIf="repoList().length > 0">
+    <label><h5>Pilih Repository</h5></label><br><br>
+    <select class="form-select form-select-lg mb-3 select" [(ngModel)]="selectedRepo" (change)="loadFiles()">
+        <option *ngFor="let repo of repoList()" [value]="repo.name">
+            {{ repo.name }}
+        </option>
+    </select>
+</div>
+<br><br><br>
+
+
+
+            <!-- Hapus file markdown -->
+            <!-- <table>
+              <thead>
+                <tr>
+                  <th>File</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let file of filesList()">
+                  <td>{{ file.name}}</td>
+                  <td>
+                    <button (click)="deleteFile(file.path)">Delete</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table> -->
+
+<div *ngIf="filesList().length > 0" class="table-responsive">
+
+
+<!-- Tambah file markdown -->
+<div class="p-4 border rounded-x1 shadow space-y-4 card">
+  <h2 class="text-x1 font-bold">
+    Tambah File Markdown Baru
+  </h2><br>
+
+  <input type="text" [(ngModel)]="filename" placeholder="Nama file" class="border p-2 w-full rounded"/><br>
+  <textarea [(ngModel)]="newMarkdownContent" rows="10" placeholder="Isi konten" class="border p-2 w-full rounded"></textarea><br>
+
+  <button 
+  (click)="addNewMarkdownFile()" 
+  class="btn btn-outline-light btnMenu">
+  <mat-icon>save</mat-icon>
+  </button>
+</div>
+<br><br>
+
+<label>
+  <h5 style="font-weight: 1000;">Daftar File Markdown :</h5>
+</label>
+<table class="table table-bordered">
+  <thead class="table-light">
+    <tr>
+      <th>Nama File</th>
+      <th>Path</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let file of filesList()">
+      <td>{{ file.name }}</td>
+      <td>{{ file.path }}</td>
+      <td>
+        <button class="btn btn-sm btn-primary me-2" (click)="editFile(file.path)">Edit</button>
+        <button class="btn btn-sm btn-danger" (click)="deleteFile(file.path)">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+</div>
+</div>
+
+<div class="container text-center">
+    <div class="row">
+      <div class="col">
+        <div>
+            <h3 class="text-x1 font-semibold">Editor</h3>
+            <textarea 
+            #markdownArea
+            #markdownTextarea
+            #editSection
+            [(ngModel)]="markdownContent" 
+            class="w-full h-[75vh] border p-2 rounded" 
+            style="width: 100%; height: 50em;"></textarea>
+
+            <br><br>
+
+            <div class="menuGroup">
+              <h3>Text Format</h3>
+              <div style="margin-top: 1em; text-align: center;" class="featureMenu">
+
+              <button 
+              class="btn btn-outline-light btnMenu"
+              (click)="applyFormatting('bold')"
+              >
+                <mat-icon> format_bold</mat-icon>
+              </button>
+
+              <button 
+              class="btn btn-outline-light btnMenu"
+              (click)="applyFormatting('italic')"
+              >
+                <mat-icon> format_italic</mat-icon>
+              </button>
+
+              <button 
+              class="btn btn-outline-light btnMenu"
+              (click)="applyFormatting('ul')"
+              >
+                <mat-icon>list</mat-icon>
+              </button>
+
+              <button 
+              class="btn btn-outline-light btnMenu"
+              (click)="applyFormatting('heading1')"
+              >
+                H1
+              </button>
+
+              <button class="btn btn-outline-light btnMenu"
+              (click)="applyFormatting('heading2')"
+              >
+                H2
+              </button>
+
+            </div>
+            </div>
+
+            <br><br>
+
+            <div class="menuGroup">
+            <h3>Menu</h3>
+            <div style="margin-top: 1em; text-align: center;" class="featureMenu">
+              <button (click)="triggerImageInput()" class="btn btn-outline-light btnMenu">
+                <mat-icon>image</mat-icon>
+                <p>image</p>
+              </button>
+              <input 
+              type="file" 
+              #imageInput 
+              style="display: none;" 
+              accept="image/*" 
+              (change)="handleImageUpload($event)"/>
+
+              <button 
+              class="btn btn-outline-light btnMenu"
+              (click)="openSnippetModal()">
+                <mat-icon>code</mat-icon>
+                <p>code</p>
+              </button>
+            
+              <button
+              class="btn btn-outline-light btnMenu"
+              (click)="openAdmonitionModal()">
+              <mat-icon>info</mat-icon>
+              <p>admonition</p>
+              </button>
+
+              <button
+              class="btn btn-outline-light btnMenu"
+              (click)="openTabsModal()">
+              <mat-icon>calendar_view_day</mat-icon>
+              <p>Tabs</p>
+              </button>
+        </div>
+      </div>
+
+            <br><br>
+            
+            <button (click)="saveFile()" class="btn btn-outline-secondary">Commit Changes</button>
+
+
+            <p class="text-sm text-green-600 mt-1">{{ status() }}</p>
+        </div>
+      </div>
+      <div class="col">
+        <div>
+            <h3 class="text-x1 font-semibold">Preview</h3>
+            <app-markdown-preview [data]="markdownContent()"></app-markdown-preview>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Modal Snippet Code -->
+<div class="modal fade" id="codeSnippetModal" tabindex="-1" aria-labelledby="codeSnippetModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="codeSnippetModalLabel">Insert Code Snippet</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <label>Bahasa Pemrograman :</label>
+        <input type="text" class="form-control" [(ngModel)]="codeLanguage" placeholder="e.g. javascript, python"/>
+        <br>
+        <label>Isi kode :</label>
+        <textarea #markdownTextarea class="form-control" [(ngModel)]="codeContent" rows="6" placeholder="Tulis kode disini"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="insertCodeSnippet()" data-bs-dismiss="modal">Insert</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Admonition Code -->
+<div class="modal fade" id="admonitionModal" tabindex="-1" aria-labelledby="AdmonitionModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="AdmonitionModalLabel">Insert Code Snippet</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <label>Jenis Admonition :</label>
+        <select class="form-select" [(ngModel)]="admonitionType">
+          <option value="note">Note</option>
+          <option value="tip">Tip</option>
+          <option value="info">Info</option>
+          <option value="warning">Warning</option>
+          <option value="danger">Danger</option>
+        </select>
+        <br>
+        <label>Judul (opsional) :</label>
+        <input type="text" class="form-control" [(ngModel)]="admonitionTitle" placeholder="Judul untuk admonition"/>
+        <br>
+        <label>Isi Admonition :</label>
+        <textarea class="form-control" [(ngModel)]="admonitionContent" rows="5" placeholder="Masukan isi admonition"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="insertAdmonition()" data-bs-dismiss="modal">Insert</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Tabs Item -->
+<div class="modal fade" id="tabsModal" tabindex="-1" aria-labelledby="tabsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="tabsModalLabel">Insert JSX Tabs</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div *ngFor="let tab of jsxTabs; let i = index" class="mb-3">
+          <label>Label Tab {{ i + 1 }}</label>
+          <input type="text" class="form-control" [(ngModel)]="tab.label" placeholder="Contoh: Tab 1"/>
+          
+          <label>Value (unik) :</label>
+          <input type="text" class="form-control mb-2" [(ngModel)]="tab.value" placeholder="Unik Value">
+
+          <label>Isi konten :</label>
+          <textarea rows="3" class="form-control" [(ngModel)]="tab.content" placeholder="Isi konten tab disini"></textarea>
+          <hr>
+
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="deafultTab" [value]="i" [(ngModel)]="defaultTabIndex">
+            <label class="form-check-label">Jadikan default</label>
+          </div>
+          <hr>
+          </div>
+
+          <button class="btn btn-sm btn-outline-secondary" (click)="addTab()">Tambah Tab</button>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" (click)="insertJsxTabs()" data-bs-dismiss="modal">Insert Tabs</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<div *ngIf="status()">
+    <p>status: {{ status() }}</p>
+</div>

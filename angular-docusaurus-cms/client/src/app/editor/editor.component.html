@@ -1,0 +1,17 @@
+<h2>Editor Dokumentasi</h2>
+
+<label>Repo:</label>
+<select [(ngModel)]="selectedRepo" (change)="loadFiles()">
+  <option *ngFor="let r of repos" [value]="r">{{ r }}</option>
+</select>
+
+<label>File:</label>
+<select [(ngModel)]="selectedFile" (change)="loadFile()">
+  <option *ngFor="let f of files" [value]="f.path">{{ f.name }}</option>
+</select>
+
+<label>Konten Markdown:</label>
+<textarea [(ngModel)]="content" rows="20" cols="80"></textarea>
+
+<br><br>
+<button (click)="save()">Simpan</button>
