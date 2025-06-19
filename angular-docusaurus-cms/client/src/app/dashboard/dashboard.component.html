@@ -15,10 +15,10 @@
   <div class="card border-secondary mb-3 card-token">
     <h5 style="padding: 1em 2em 1em 1em;">Masukan token repository yang akan di edit</h5>
     <div class="card-body text-secondary cardHeader">
-        <label>Github Token :</label>
+        <label>Gitlab Token :</label>
         <input type="password" class="form-control" [(ngModel)]="token" placeholder="Token Git" (ngModelChange)="token.set($event)" />   
         <br><br>
-        <label>Username Github : </label>
+        <label>Username Gitlab : </label>
         <input type="text" class="form-control" [(ngModel)]="owner" placeholder="User Name" />
         <br><br>
         <button class="btn btn-outline-secondary" (click)="loadRepos()">Load Repositories</button>
@@ -31,8 +31,8 @@
 <div class="cardHeader">
 <div style="justify-items: center;" *ngIf="repoList().length > 0">
     <label><h5>Pilih Repository</h5></label><br><br>
-    <select class="form-select form-select-lg mb-3 select" [(ngModel)]="selectedRepo" (change)="loadFiles()">
-        <option *ngFor="let repo of repoList()" [value]="repo.name">
+    <select class="form-select form-select-lg mb-3 select" [(ngModel)]="selectedRepoId" (change)="loadFiles()">
+        <option *ngFor="let repo of repoList()" [value]="repo.id">
             {{ repo.name }}
         </option>
     </select>

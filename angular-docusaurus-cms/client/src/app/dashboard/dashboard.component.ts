@@ -21,8 +21,9 @@ declare var bootstrap: any;
 export class DashboardComponent {
   token = signal('');
   owner = signal('');
-  repoList = signal<{ name: string, path: string}[]>([]);
+  repoList = signal<{ id: number, name: string, path: string }[]>([]);
   selectedRepo = signal('');
+  selectedRepoId = signal<number | null>(null);
   filesList = signal<{name: string; path: string}[]>([]);
   selectedFile = signal('');
   markdownContent = signal('');
@@ -130,7 +131,7 @@ export class DashboardComponent {
   }
 
   loadFiles() {
-    this.http.get<any[]>(`http://localhost:3001/docs?owner=${this.owner()}&repo=${this.selectedRepo()}&token=${this.token()}`)
+    this.http.get<any[]>(`http://localhost:3001/docs?owner=${this.owner()}&repo=${this.selectedRepoId()}&token=${this.token()}&path=my-website/docs`)
     .pipe(
       catchError(err => {
         console.error(err);
@@ -160,7 +161,7 @@ export class DashboardComponent {
     const params = {
       token: this.token(),
       owner: this.owner(),
-      repo: this.selectedRepo(),
+      repo: this.selectedRepoId(),
       path: path
     }
 
@@ -187,7 +188,7 @@ export class DashboardComponent {
     const body = {
       token: this.token(),
       owner: this.owner(),
-      repo: this.selectedRepo(),
+      repo: this.selectedRepoId(),
       path: this.selectedFile(),
       content: this.markdownContent(),
       message: `Update via CMS By : ${this.owner}`
@@ -377,7 +378,7 @@ export class DashboardComponent {
     const payload = {
       token: this.token(),
       owner: this.owner(),
-      repo: this.selectedRepo(),
+      repo: this.selectedRepoId(),
       path: `docs/${this.filename}`,
       content: this.newMarkdownContent,
       message: `Add new file ${this.filename} via cms`

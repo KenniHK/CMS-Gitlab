@@ -4,6 +4,7 @@ import cors from 'cors';
 import { Octokit } from '@octokit/rest';
 import multer from 'multer';
 import dotenv from 'dotenv';
+import axios from 'axios';
 
 dotenv.config();
 
@@ -13,195 +14,120 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+const GITLAB_API = 'https://gitlab.com/api/v4';
 
 // Ambil daftar repo
-app.get("/repos", (req,res) => {
-    const { owner, token } = req.query;
+app.get("/repos", async (req,res) => {
+    const { token } = req.query;
+    const { owner } = req.query;
+    try {
+        const response = await axios.get(`${GITLAB_API}/projects`, {
+            headers: { 'PRIVATE-TOKEN': token },
+            params: { membership: true, simple: true, per_page: 100 },
+        });
+        const repos = response.data.map(repo => ({
+            id: repo.id,
+            name: repo.name,
+            path: repo.path_with_namespace
+        }));
+        res.json(repos);
+    } catch (err) {
+        res.status(500).json({ error: 'Gagal ambil repositori', detail: err.message });
+    }
     console.log('Token Dari FE : ', token);
     console.log('Owner :', owner );
-    const octokit = new Octokit({ auth: token });
-    octokit.repos.listForAuthenticatedUser({ username: owner }).then(response => {
-        const repos = response.data.map(repo => ({ name: repo.name, path: `${owner}/${repo.name}`}));
-        res.json(repos);
-    }).catch(err => {
-        res.status(500).json({ error: 'Gagal ambil repositori', detail: err.message })
-    });
 });
 
-// Ambil semua fille markdown yang ada didalam repo (docs dan subfolder)
-async function getMarkdownFiles( octokit, owner, repo, path = 'docs') {
+// Ambil file markdown dari folder docs
+async function getMarkdownFiles(token, projectId, path = 'docs') {
     try {
-        const { data: items } = await octokit.repos.getContent({ owner, repo, path});
-        let results = [];
-        for (const item of items) {
-            if (item.type === 'file' && (item.name.endsWith('.md') || item.name.endsWith('.mdx'))) {
-                results.push({ name: item.name, path: item.path });
-            } else if (item.type === 'dir') {
-                const children = await getMarkdownFiles(octokit, owner, repo, item.path);
-                results = results.concat(children);
-            }
-        }
-        return results;
+      const url = `${GITLAB_API}/projects/${projectId}/repository/tree`;
+      const { data } = await axios.get(url, {
+        headers: { 'PRIVATE-TOKEN': token },
+        params: { path, recursive: true, per_page: 100 },
+      });
+      return data.filter(f => f.type === 'blob' && (f.path.endsWith('.md') || f.path.endsWith('.mdx')))
+                 .map(f => ({ name: f.name, path: f.path }));
     } catch (err) {
-        console.error(`Error reading directory ${path} in ${repo}:`, err.message);
-        throw err;
+      console.error('Gagal ambil file markdown:', err.response?.data || err.message);
+      throw err;
     }
-}
-
-// Endpoint ambil semua file .md/ .mdx di docs
-app.get('/docs', async (req, res) => {
-    const { token, owner, repo } = req.query;
-    const octokit = new Octokit({ auth: token })
+  }
+  
+  
+  app.get('/docs', async (req, res) => {
+    const { token, repo, path } = req.query;
     try {
-        const markdownFiles = await getMarkdownFiles(octokit, owner, repo);
-        res.json(markdownFiles);
+      const targetPath = path || 'docs';
+      const files = await getMarkdownFiles(token, repo, targetPath);
+      res.json(files);
     } catch (err) {
-        res.status(500).json({ error: 'Gagal ambil file', detail: err.message });
+      res.status(500).json({ error: 'Gagal ambil file markdown', detail: err.message });
     }
-});
-
-// Ambil isi file markdown tertentu
-app.get('/file', async (req, res) => {
-    const { token, owner, repo, path } = req.query;
-    const octokit = new Octokit({ auth: token });
+  });
+  
+  app.get('/file', async (req, res) => {
+    const { token, repo, path } = req.query;
     try {
-        const file = await octokit.repos.getContent({ owner, repo, path });
-        const content = Buffer.from(file.data.content, 'base64').toString('utf-8');
-        res.send(content);
+      const response = await axios.get(`${GITLAB_API}/projects/${repo}/repository/files/${encodeURIComponent(path)}/raw`, {
+        headers: { 'PRIVATE-TOKEN': token },
+        params: { ref: 'main' },
+      });
+      res.send(response.data);
     } catch (err) {
-        res.status(500).json({ error: `Gagal ambil file`, detail: err.message });
+      res.status(500).json({ error: 'Gagal ambil konten file', detail: err.message });
     }
-});
-
-//Upload gambar
-const upload = multer();
-
-app.post('/upload-image', upload.single('file'), async (req,res) => {
-    const { file } = req;
-    const { owner, repo, token } = req.body;
-
-    if (!file) return res.status(400).json({ error: 'No file uploaded' });
-
-    const octokit = new Octokit({ auth: token });
-    const path = `static/img/${file.originalname}`;
-    const content = file.buffer.toString('base64');
-
+  });
+  
+  app.post('/file', async (req, res) => {
+    const { token, repo, path, content, message = 'Update file via CMS' } = req.body;
     try {
-        const { data: existing } = await octokit.repos.getContent({ owner, repo, path });
-        await octokit.repos.createOrUpdateFileContents({
-            owner,
-            repo,
-            path,
-            message: `Update image: ${file.originalname}`,
-            content,
-            sha: existing.sha
+        await axios.put(`${GITLAB_API}/projects/${repo}/repository/files/${encodeURIComponent(path)}`, {
+          branch: 'main',
+          content,
+          commit_message: message,
+        }, {
+          headers: { 'PRIVATE-TOKEN': token },
         });
-    } catch (err) {
-        await octokit.repos.createOrUpdateFileContents({
-            owner,
-            repo,
-            path,
-            message: `Upload Image: ${file.originalname}`,
-            content
-        });
-    }
-
-    const url = `https://raw.githubusercontent.com/${owner}/${repo}/main/${path}`;
-    res.json({ url });
-})
-
-
-// Commit Github
-app.post('/file', async (req, res) => {
-    const { token, owner, repo, path, content, message = 'Update via CMS' } = req.body;
-    const octokit = new Octokit({ auth: token });
-
-    try {
-        const { data: existingFile } = await octokit.repos.getContent({ owner, repo, path });
-
-        const update = await octokit.repos.createOrUpdateFileContents ({
-            owner,
-            repo,
-            path,
-            message,
-            content: Buffer.from(content).toString('base64'),
-            sha: existingFile.sha
-        });
-
-        res.json({ success: true, commit: update.data.commit.sha });
-    } catch (err) {
-        res.status(500).json({ error: 'Gagal commit file', detail: err.message });
-    }
-});
-
-//Add File markdown 
-app.post('/new-file', async (req,res) => {
-    const { token, owner, repo, path, content, message = 'Add new markdown file' } = req.body;
-
-    if (!token || !owner || !repo || !path || !content) {
-        return res.status(400).json({ error: 'Semua field wajib diisi'});
-    }
-
-    if (typeof content !== 'string'){
-        return res.status(400).json({ error: 'Konten harus berupa string.'})
-    }
-
-    const octokit = new Octokit({ auth: token });
-
-      try {
-        await octokit.repos.getContent({ owner, repo, path });
-        return res.status(400).json({ error: 'File sudah ada di repositori' });
+        res.json({ success: true });
       } catch (err) {
-        if (err.status !== 404) {
-          return res.status(500).json({ error: 'Gagal cek file', detail: err.message });
-        }
+        res.status(500).json({ error: 'Gagal commit file', detail: err.message });
       }
-
-      try {
-        const encodedContent = Buffer.from(content).toString('base64');
-        const response = await octokit.repos.createOrUpdateFileContents({
-            owner,
-            repo,
-            path,
-            message,
-            content: encodedContent,
-          });
-          res.json({ success: true, commit: response.data.commit.sha });
-      } catch (createErr) {
-        res.status(500).json({ error: 'Gagal membuat file baru', detail: createErr.message });
-      }
-  })
-
-  //delete markdown file
-  app.delete('/delete-file', async (req, res) => {
-    const { token, owner, repo, path } = req.query;
-
-    if (!token || !owner || !repo || !path) {
-        return res.status(400).json({ error: 'Semua parameter (token, owner, repo, path wajib diisi' });
-    }
-
-    const octokit = new Octokit({ auth: token });
-
+    });
+  
+  app.post('/new-file', async (req, res) => {
+    const { token, repo, path, content, message = 'Add new markdown file' } = req.body;
     try {
-        const { data: file } = await octokit.repos.getContent({ owner, repo, path});
-
-        const result = await octokit.repos.deleteFile({
-            owner,
-            repo,
-            path,
-            message: `Delete file ${path} via cms`,
-            sha: file.sha
-        });
-
-        res.json({ success: true, commit: result.data.commit.sha });
+      await axios.post(`${GITLAB_API}/projects/${repo}/repository/files/${encodeURIComponent(path)}`, {
+        branch: 'main',
+        content,
+        commit_message: message,
+      }, {
+        headers: { 'PRIVATE-TOKEN': token },
+      });
+      res.json({ success: true });
     } catch (err) {
-        console.error('Gagal hapus file:', err.message);
-        res.status(500).json({ error: 'Gagal menghapus file', detail: err.message })
+      res.status(500).json({ error: 'Gagal membuat file baru', detail: err.message });
     }
-
-
-  })
-
-app.listen(PORT, () => {
-    console.log(`BackEnd running on http://localhost:${PORT}`);
-});
+  });
+  
+  app.delete('/delete-file', async (req, res) => {
+    const { token, repo, path } = req.query;
+    try {
+      await axios.delete(`${GITLAB_API}/projects/${repo}/repository/files/${encodeURIComponent(path)}`, {
+        headers: { 'PRIVATE-TOKEN': token },
+        data: {
+          branch: 'main',
+          commit_message: `Delete file ${path} via CMS`,
+        }
+      });
+      res.json({ success: true });
+    } catch (err) {
+      res.status(500).json({ error: 'Gagal menghapus file', detail: err.message });
+    }
+  });
+  
+  app.listen(PORT, () => {
+    console.log(`GitLab CMS Backend running on http://localhost:${PORT}`);
+  });
+  
