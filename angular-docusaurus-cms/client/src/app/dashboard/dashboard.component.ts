@@ -379,7 +379,7 @@ export class DashboardComponent {
       token: this.token(),
       owner: this.owner(),
       repo: this.selectedRepoId(),
-      path: `docs/${this.filename}`,
+      path: `my-website/docs/${this.filename}`,
       content: this.newMarkdownContent,
       message: `Add new file ${this.filename} via cms`
     };
@@ -402,10 +402,10 @@ export class DashboardComponent {
 
 
   deleteFile(path: string) {
-    const params = {
+    const params : any = {
       token: this.token(),
       owner: this.owner(),
-      repo: this.selectedRepo(),
+      repo: this.selectedRepoId(),
       path: path
     };
 
