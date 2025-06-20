@@ -131,7 +131,7 @@ export class DashboardComponent {
   }
 
   loadFiles() {
-    this.http.get<any[]>(`http://localhost:3001/docs?owner=${this.owner()}&repo=${this.selectedRepoId()}&token=${this.token()}&path=my-website/docs`)
+    this.http.get<any[]>(`http://localhost:3001/docs?owner=${this.owner()}&repo=${this.selectedRepoId()}&token=${this.token()}&path=docs`)
     .pipe(
       catchError(err => {
         console.error(err);
@@ -379,7 +379,7 @@ export class DashboardComponent {
       token: this.token(),
       owner: this.owner(),
       repo: this.selectedRepoId(),
-      path: `my-website/docs/${this.filename}`,
+      path: `docs/${this.filename}`,
       content: this.newMarkdownContent,
       message: `Add new file ${this.filename} via cms`
     };
