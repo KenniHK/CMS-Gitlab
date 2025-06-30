@@ -79,6 +79,12 @@
   border-radius: 0.2em;
 }
 
+.group-menu {
+  background-color: #144e83;
+  padding: 0.5em 2em;
+  color: white;
+}
+
 .featureMenu {
   /* background: linear-gradient(99deg,rgba(0, 92, 170, 1) 15%, rgba(0, 181, 240, 1) 50%, rgba(0, 148, 213, 1) 84%); */
   padding: 2em 1em;
@@ -86,4 +92,11 @@
   justify-content: center;
   align-content: center;
   gap: 0.5em;
+  margin-top: 3em; 
+  text-align: center
+}
+
+.sticky-menu {
+  background-color: rgb(241, 241, 241);
+  border: 2px solid #144e83;
 }

@@ -6,8 +6,7 @@ import { CommonModule } from '@angular/common';
 import { MarkdownPreviewComponent } from '../markdown-preview/markdown-preview.component';
 import Swal from 'sweetalert2';
 import { MatIconModule } from '@angular/material/icon';
-import { catchError, map, of, throwError } from 'rxjs';
-import { text } from 'stream/consumers';
+import { catchError, of } from 'rxjs';
 declare var bootstrap: any;
 
 @Component({
@@ -23,7 +22,7 @@ export class DashboardComponent {
   owner = signal('');
   repoList = signal<{ id: number, name: string, path: string }[]>([]);
   selectedRepo = signal('');
-  selectedRepoId = signal<number | null>(null);
+  selectedRepoId = signal<number | null | any>(null);
   filesList = signal<{name: string; path: string}[]>([]);
   selectedFile = signal('');
   markdownContent = signal('');
@@ -39,6 +38,7 @@ export class DashboardComponent {
   defaultTabIndex: number = 0;
   filename = '';
   newMarkdownContent = '';
+  showMenu = true;
 
   @ViewChild('imageInput') imageInput!: ElementRef<HTMLInputElement>;
   @ViewChild('markdownArea') markdownArea!: ElementRef<HTMLTextAreaElement>;
@@ -57,7 +57,7 @@ export class DashboardComponent {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('owner', this.owner());
-    formData.append('repo', this.selectedRepo());
+    formData.append('repo', this.selectedRepoId());
     formData.append('token', this.token());
 
     console.log('Mengubah gambar...');
@@ -430,5 +430,9 @@ export class DashboardComponent {
         });
       }
     });
+  }
+
+  menuClick() {
+    this.showMenu = !this.showMenu;
   }
 }

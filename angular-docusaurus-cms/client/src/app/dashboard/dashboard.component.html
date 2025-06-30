@@ -11,6 +11,7 @@
     </div>
   </nav>
 
+
 <div class="flex-card-cotainer">
   <div class="card border-secondary mb-3 card-token">
     <h5 style="padding: 1em 2em 1em 1em;">Masukan token repository yang akan di edit</h5>
@@ -106,6 +107,101 @@
 </div>
 </div>
 
+
+
+
+
+
+<nav class="sticky-top sticky-menu">
+<h3 class="group-menu">	
+  <button type="button" class="btn btn-outline-light" (click)="menuClick()">
+  <mat-icon>menu</mat-icon>
+  </button>
+  Group Menu :
+  </h3>
+  <br>
+  
+<div style="margin-top: -2em; text-align: center;" class="featureMenu" *ngIf="showMenu">
+  <button (click)="triggerImageInput()" class="btn btn-outline-light btnMenu">
+    <mat-icon>image</mat-icon>
+    <p>image</p>
+  </button>
+  <input 
+  type="file" 
+  #imageInput 
+  style="display: none;" 
+  accept="image/*" 
+  (change)="handleImageUpload($event)"/>
+
+  <button 
+  class="btn btn-outline-light btnMenu"
+  (click)="openSnippetModal()">
+    <mat-icon>code</mat-icon>
+    <p>code</p>
+  </button>
+
+  <button
+  class="btn btn-outline-light btnMenu"
+  (click)="openAdmonitionModal()">
+  <mat-icon>info</mat-icon>
+  <p>admonition</p>
+  </button>
+
+  <button
+  class="btn btn-outline-light btnMenu"
+  (click)="openTabsModal()">
+  <mat-icon>calendar_view_day</mat-icon>
+  <p>Tabs</p>
+  </button>
+</div>
+
+<div style="margin-top: -2em; text-align: center;" class="featureMenu" *ngIf="showMenu">
+
+  <button 
+  class="btn btn-outline-light btnMenu"
+  (click)="applyFormatting('bold')"
+  >
+    <mat-icon> format_bold</mat-icon>
+  </button>
+
+  <button 
+  class="btn btn-outline-light btnMenu"
+  (click)="applyFormatting('italic')"
+  >
+    <mat-icon> format_italic</mat-icon>
+  </button>
+
+  <button 
+  class="btn btn-outline-light btnMenu"
+  (click)="applyFormatting('ul')"
+  >
+    <mat-icon>list</mat-icon>
+  </button>
+
+  <button 
+  class="btn btn-outline-light btnMenu"
+  (click)="applyFormatting('heading1')"
+  >
+    H1
+  </button>
+
+  <button class="btn btn-outline-light btnMenu"
+  (click)="applyFormatting('heading2')"
+  >
+    H2
+  </button>
+</div>
+
+</nav>
+<br><br><br>
+
+
+
+
+
+
+
+
 <div class="container text-center">
     <div class="row">
       <div class="col">
@@ -121,7 +217,7 @@
 
             <br><br>
 
-            <div class="menuGroup">
+            <!-- <div class="menuGroup">
               <h3>Text Format</h3>
               <div style="margin-top: 1em; text-align: center;" class="featureMenu">
 
@@ -160,11 +256,11 @@
               </button>
 
             </div>
-            </div>
+            </div> -->
 
             <br><br>
 
-            <div class="menuGroup">
+            <!-- <div class="menuGroup">
             <h3>Menu</h3>
             <div style="margin-top: 1em; text-align: center;" class="featureMenu">
               <button (click)="triggerImageInput()" class="btn btn-outline-light btnMenu">
@@ -199,7 +295,7 @@
               <p>Tabs</p>
               </button>
         </div>
-      </div>
+      </div> -->
 
             <br><br>
             

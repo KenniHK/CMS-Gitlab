@@ -110,6 +110,51 @@ async function getMarkdownFiles(token, projectId, path = 'docs') {
       res.status(500).json({ error: 'Gagal membuat file baru', detail: err.message });
     }
   });
+
+//Upload gambar
+const upload = multer();
+
+app.post('/upload-image', upload.single('file'), async (req,res) => {
+    const { file } = req;
+    const { repo, token } = req.body;
+    const filePath = `static/img/${file.originalname}`;
+
+    if (!file) return res.status(400).json({ error: 'No file uploaded' });
+
+    const content = file.buffer.toString('base64');
+    const apiBase =  `https://gitlab.com/api/v4`;
+
+    const headers = {
+      'PRIVATE-TOKEN': token,
+      'Content-Type': 'application/json'
+    };
+
+    try {
+      const check = await axios.get(`${apiBase}/projects/${repo}/repository/files/${encodeURIComponent(filePath)}?ref=main`, { headers });
+
+      await axios.put(`${apiBase}/projects/${repo}/repository/files/${encodeURIComponent(filePath)}`, {
+        branch: 'main',
+        content,
+        commit_message: `Update image: ${file.originalname}`,
+        encoding: 'base64'
+      }, { headers });
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        await axios.post(`${apiBase}/projects/${repo}/repository/files/${encodeURIComponent(filePath)}`, {
+          branch: 'main',
+          content,
+          commit_message: `Upload image: ${file.originalname}`,
+          encoding: 'base64'
+        }, { headers });
+      } else {
+        return res.status(500).json({ error: 'Upload Failed', details: err.message });
+      }
+    }
+
+    const imageUrl = `https://gitlab.com/api/v4/projects/${repo}/repository/files/${encodeURIComponent(filePath)}/raw?ref=main`;
+    res.json({ url: imageUrl });
+})
+
   
   app.delete('/delete-file', async (req, res) => {
     const { token, repo, path } = req.query;
