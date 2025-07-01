@@ -432,7 +432,7 @@ export class DashboardComponent {
     });
   }
 
-  menuClick() {
-    this.showMenu = !this.showMenu;
-  }
+  // menuClick() {
+  //   this.showMenu = !this.showMenu;
+  // }
 }

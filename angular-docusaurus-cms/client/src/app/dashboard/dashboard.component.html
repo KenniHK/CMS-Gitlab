@@ -109,19 +109,20 @@
 
 
 
-
-
-
-<nav class="sticky-top sticky-menu">
+<div class="sticky-top">
 <h3 class="group-menu">	
-  <button type="button" class="btn btn-outline-light" (click)="menuClick()">
+  <button type="button" class="btn btn-outline-light" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
   <mat-icon>menu</mat-icon>
   </button>
   Group Menu :
   </h3>
   <br>
   
-<div style="margin-top: -2em; text-align: center;" class="featureMenu" *ngIf="showMenu">
+<div class="collapse" id="collapseExample">
+  <div class="card card-body container text-center btnContainer">
+
+  <div class="row">
+  <div class="col flex-menu">
   <button (click)="triggerImageInput()" class="btn btn-outline-light btnMenu">
     <mat-icon>image</mat-icon>
     <p>image</p>
@@ -131,32 +132,32 @@
   #imageInput 
   style="display: none;" 
   accept="image/*" 
-  (change)="handleImageUpload($event)"/>
+  (change)="handleImageUpload($event)"/><br>
 
   <button 
   class="btn btn-outline-light btnMenu"
   (click)="openSnippetModal()">
     <mat-icon>code</mat-icon>
     <p>code</p>
-  </button>
+  </button><br>
 
   <button
   class="btn btn-outline-light btnMenu"
   (click)="openAdmonitionModal()">
   <mat-icon>info</mat-icon>
   <p>admonition</p>
-  </button>
+  </button><br>
 
   <button
   class="btn btn-outline-light btnMenu"
   (click)="openTabsModal()">
   <mat-icon>calendar_view_day</mat-icon>
   <p>Tabs</p>
-  </button>
+  </button><br>
 </div>
 
-<div style="margin-top: -2em; text-align: center;" class="featureMenu" *ngIf="showMenu">
 
+<div class="col flex-menu">
   <button 
   class="btn btn-outline-light btnMenu"
   (click)="applyFormatting('bold')"
@@ -190,9 +191,12 @@
   >
     H2
   </button>
+  </div>  
+</div>
+</div>
+</div>
 </div>
 
-</nav>
 <br><br><br>
 
 
