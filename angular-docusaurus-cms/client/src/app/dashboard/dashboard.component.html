@@ -1,8 +1,17 @@
 <nav class="navbar sticky-top navbar-expand-lg navbar">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#" style="display: flex;">
+        <!-- <a class="navbar-brand" href="#" style="display: flex;">
             <img class="navbarIcon" src="docusaurus-logo.png"/>
             <h3 style="color: white;">Dashboard CMS Docusaurus</h3>
+        </a> -->
+
+        <a href="#">
+          <span><p>Docusaurus</p></span>
+          <span><img class="navbarIcon" src="docusaurus-logo.png" height="85%"/></span>
+  
+          <span><p>Docusaurus</p></span>
+          <span><img class="navbarIcon" src="docusaurus-logo.png" height="85%"/></span>
+
         </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon">
@@ -123,7 +132,9 @@
 
   <div class="row">
   <div class="col flex-menu">
-  <button (click)="triggerImageInput()" class="btn btn-outline-light btnMenu">
+  <button 
+  (click)="triggerImageInput()" 
+  class="btn btn-outline-light button-bordered">
     <mat-icon>image</mat-icon>
     <p>image</p>
   </button>
@@ -135,21 +146,21 @@
   (change)="handleImageUpload($event)"/><br>
 
   <button 
-  class="btn btn-outline-light btnMenu"
+  class="btn btn-outline-light button-bordered"
   (click)="openSnippetModal()">
     <mat-icon>code</mat-icon>
     <p>code</p>
   </button><br>
 
   <button
-  class="btn btn-outline-light btnMenu"
+  class="btn btn-outline-light button-bordered"
   (click)="openAdmonitionModal()">
   <mat-icon>info</mat-icon>
   <p>admonition</p>
   </button><br>
 
   <button
-  class="btn btn-outline-light btnMenu"
+  class="btn btn-outline-light button-bordered"
   (click)="openTabsModal()">
   <mat-icon>calendar_view_day</mat-icon>
   <p>Tabs</p>
@@ -157,36 +168,36 @@
 </div>
 
 
-<div class="col flex-menu">
+<div class="col flex-menu" style="margin: 2em 0em;">
   <button 
-  class="btn btn-outline-light btnMenu"
+  class="btn btn-outline-light button-bordered"
   (click)="applyFormatting('bold')"
   >
     <mat-icon> format_bold</mat-icon>
   </button>
 
   <button 
-  class="btn btn-outline-light btnMenu"
+  class="btn btn-outline-light button-bordered"
   (click)="applyFormatting('italic')"
   >
     <mat-icon> format_italic</mat-icon>
   </button>
 
   <button 
-  class="btn btn-outline-light btnMenu"
+  class="btn btn-outline-light button-bordered"
   (click)="applyFormatting('ul')"
   >
     <mat-icon>list</mat-icon>
   </button>
 
   <button 
-  class="btn btn-outline-light btnMenu"
+  class="btn btn-outline-light button-bordered"
   (click)="applyFormatting('heading1')"
   >
     H1
   </button>
 
-  <button class="btn btn-outline-light btnMenu"
+  <button class="btn btn-outline-light button-bordered"
   (click)="applyFormatting('heading2')"
   >
     H2
